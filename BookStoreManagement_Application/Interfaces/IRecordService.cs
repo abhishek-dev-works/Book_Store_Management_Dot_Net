@@ -9,6 +9,8 @@ namespace BookStoreManagement_Application.Interfaces
         void AddNewEntry(RecordCommand record);
         void UpdateEntryById(int id, RecordCommand record);
         List<RecordResponseDto> GetEntriesByUserId(int userId);
+        void AddMultipleEntriesForUser(MultipleRecordsCommand command);
+        List<RecordResponseDto> GetRecordsByFilters(RecordsFilterCommand filter);
     }
 
 }

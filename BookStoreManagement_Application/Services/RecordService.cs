@@ -85,5 +85,54 @@ namespace BookStoreManagement_Application.Services
                 })
                 .ToList();
         }
+
+        public void AddMultipleEntriesForUser(MultipleRecordsCommand command)
+        {
+            if (command == null || command.BookIds == null || !command.BookIds.Any())
+            {
+                throw new ArgumentException("Invalid data. At least one book must be provided.");
+            }
+
+            var records = command.BookIds.Select(bookId => new Record
+            {
+                UserId = command.UserId,
+                BookId = bookId,
+                IssueDate = command.IssueDate,
+                DueDate = command.DueDate,
+                Status = command.Status
+            }).ToList();
+
+            _context.Records.AddRange(records);
+            _context.SaveChanges();
+        }
+
+        public List<RecordResponseDto> GetRecordsByFilters(RecordsFilterCommand filter)
+        {
+            var query = _context.Records.AsQueryable();
+
+            if (filter.UserId.HasValue)
+                query = query.Where(r => r.UserId == filter.UserId);
+
+            if (filter.BookId.HasValue)
+                query = query.Where(r => r.BookId == filter.BookId);
+
+            if (filter.DueDate.HasValue)
+                query = query.Where(r => r.DueDate <= filter.DueDate);
+
+            if (!string.IsNullOrEmpty(filter.Status))
+                query = query.Where(r => r.Status == filter.Status);
+
+            return query.Select(r => new RecordResponseDto
+            {
+                Id = r.Id,
+                UserName = r.User.Name,
+                BookName = r.Book.Name,
+                IssueDate = r.IssueDate,
+                DueDate = r.DueDate,
+                Status = r.Status
+            }).ToList();
+        }
+
+
     }
 }

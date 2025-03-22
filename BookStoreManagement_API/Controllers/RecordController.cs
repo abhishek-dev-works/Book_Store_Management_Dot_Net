@@ -62,5 +62,28 @@ namespace BookStoreManagement_API.Controllers
 
             return Ok(userRecords);
         }
+
+        [HttpPost("entries")]
+        public IActionResult AddMultipleEntries([FromBody] MultipleRecordsCommand command)
+        {
+            try
+            {
+                _recordService.AddMultipleEntriesForUser(command);
+                return Ok(new { message = "Records added successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpPost("filter")]
+        public IActionResult GetRecordsByFilters([FromBody] RecordsFilterCommand filter)
+        {
+            var records = _recordService.GetRecordsByFilters(filter);
+            return Ok(records);
+        }
+
+
     }
 }
