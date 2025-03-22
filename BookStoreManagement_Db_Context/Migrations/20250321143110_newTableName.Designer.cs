@@ -4,6 +4,7 @@ using BookStoreManagement_Db_Context.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookStoreManagement_Db_Context.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250321143110_newTableName")]
+    partial class newTableName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,13 +125,13 @@ namespace BookStoreManagement_Db_Context.Migrations
             modelBuilder.Entity("Record", b =>
                 {
                     b.HasOne("Book", "Book")
-                        .WithMany("Records")
+                        .WithMany()
                         .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("User", "User")
-                        .WithMany("Records")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -137,16 +139,6 @@ namespace BookStoreManagement_Db_Context.Migrations
                     b.Navigation("Book");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Book", b =>
-                {
-                    b.Navigation("Records");
-                });
-
-            modelBuilder.Entity("User", b =>
-                {
-                    b.Navigation("Records");
                 });
 #pragma warning restore 612, 618
         }

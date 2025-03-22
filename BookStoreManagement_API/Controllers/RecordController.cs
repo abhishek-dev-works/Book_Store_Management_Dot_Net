@@ -1,37 +1,66 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using BookStoreManagement_Application.Interfaces;
+using BookStoreManagement_Application.Dto;
+using BookStoreManagement_Application.Commands;
 
 namespace BookStoreManagement_API.Controllers
 {
     [ApiController]
-    [Route("api/records")] // <-- Unique base route
+    [Route("api/records")] // Base route
     public class RecordController : ControllerBase
     {
+        private readonly IRecordService _recordService;
         private readonly ILogger<RecordController> _logger;
-        public RecordController(ILogger<RecordController> logger) { _logger = logger; }
 
-        [HttpGet]
+        public RecordController(IRecordService recordService, ILogger<RecordController> logger)
+        {
+            _recordService = recordService;
+            _logger = logger;
+        }
+
+        [HttpGet] // GET api/records
         public IActionResult GetAllEntries()
         {
-            return Ok();
+            List<RecordResponseDto> records = _recordService.GetAllEntries();
+            return Ok(records);
         }
 
-        [HttpPost("add")] // <-- Relative route (api/records/add)
-        public IActionResult AddNewEntry()
+        [HttpPost("add")] // POST api/records/add
+        public IActionResult AddNewEntry([FromBody] RecordCommand record)
         {
-            return Ok();
+            if (record == null)
+            {
+                return BadRequest(new { message = "Invalid record data" });
+            }
+
+            _recordService.AddNewEntry(record);
+            return CreatedAtAction(nameof(GetAllEntries), record);
         }
 
-        [HttpPut("{id}")] // <-- Relative route (api/records/{id})
-        public IActionResult UpdateEntryById(int id)
+        [HttpPut("{id}")] // PUT api/records/{id}
+        public IActionResult UpdateEntryById(int id, [FromBody] RecordCommand record)
         {
-            return Ok();
+            if (record == null)
+            {
+                return BadRequest(new { message = "Invalid record data" });
+            }
+
+            _recordService.UpdateEntryById(id, record);
+            return NoContent();
         }
 
-        [HttpGet("user/{id}")] // <-- Unique relative route (api/records/user/{id})
+        [HttpGet("user/{id}")] // GET api/records/user/{id}
         public IActionResult GetEntriesByUserId(int id)
         {
-            return Ok();
+            List<RecordResponseDto> userRecords = _recordService.GetEntriesByUserId(id);
+
+            if (userRecords == null || userRecords.Count == 0)
+            {
+                _logger.LogWarning($"No records found for user ID {id}");
+                return NotFound(new { message = "No records found for this user" });
+            }
+
+            return Ok(userRecords);
         }
     }
-
 }

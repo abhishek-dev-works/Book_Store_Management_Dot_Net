@@ -17,4 +17,7 @@ public class Book
     public string Publication { get; set; }
 
     public int PublishedYear { get; set; }
+
+    // Relationship: One Book can have many Records
+    public ICollection<Record> Records { get; set; }
 }

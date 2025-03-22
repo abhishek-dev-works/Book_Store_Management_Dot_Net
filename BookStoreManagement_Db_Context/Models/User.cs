@@ -20,4 +20,7 @@ public class User
     public string Password { get; set; }
 
     public string Address { get; set; }
+
+    // Relationship: One User can have many Records
+    public ICollection<Record> Records { get; set; }
 }

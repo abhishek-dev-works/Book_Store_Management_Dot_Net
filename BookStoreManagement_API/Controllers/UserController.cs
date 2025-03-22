@@ -1,33 +1,50 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Mvc;
-using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
+﻿using Microsoft.AspNetCore.Mvc;
+using BookStoreManagement_Application.Interfaces;
 
 namespace BookStoreManagement_API.Controllers
 {
     [ApiController]
-    [Route("api/users")] // <-- Unique base route
+    [Route("api/users")] // <-- Base route
     public class UserController : ControllerBase
     {
+        private readonly IUserService _userService;
         private readonly ILogger<UserController> _logger;
-        public UserController(ILogger<UserController> logger) { _logger = logger; }
 
-        [HttpGet("{id}")] // <-- Relative route (api/users/{id})
-        public IActionResult Get(int id)
+        public UserController(IUserService userService, ILogger<UserController> logger)
         {
-            return Ok();
+            _userService = userService;
+            _logger = logger;
         }
 
-        [HttpPost("create")] // <-- Relative route (api/users/create)
-        public IActionResult CreateUser()
+        [HttpGet("{id}")] // GET api/users/{id}
+        public IActionResult GetUserById(int id)
         {
-            return BadRequest();
+            var user = _userService.GetUserById(id);
+            if (user == null)
+            {
+                _logger.LogWarning($"User with ID {id} not found.");
+                return NotFound(new { message = "User not found" });
+            }
+            return Ok(user);
         }
 
-        [HttpGet]
+        [HttpPost("create")] // POST api/users/create
+        public IActionResult CreateUser([FromBody] User user)
+        {
+            if (user == null)
+            {
+                return BadRequest(new { message = "Invalid user data" });
+            }
+
+            _userService.CreateUser(user);
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+        }
+
+        [HttpGet] // GET api/users
         public IActionResult GetAllUsers()
         {
-            return Ok();
+            List<User> users = _userService.GetAllUsers();
+            return Ok(users);
         }
     }
-
 }
